@@ -17,7 +17,7 @@
                     </x-nav-link>
                 </div>
             </div>
-
+            @Auth
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
@@ -95,6 +95,13 @@
                     </x-responsive-nav-link>
                 </form>
             </div>
+        </div>
+        @endauth
+        <div class="flex justify-end space-x-4 items-center">
+            @guest
+                <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:underline">Login</a>
+                <a href="{{ route('register') }}" class="text-sm text-gray-700 hover:underline">Register</a>
+            @endguest
         </div>
     </div>
 </nav>

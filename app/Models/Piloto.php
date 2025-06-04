@@ -19,4 +19,9 @@ class Piloto extends Model
     {
         return $this->morphTo();
     }
+
+    public function trofeos()
+    {
+        return $this->belongsToMany(Trofeo::class);
+    }
 }

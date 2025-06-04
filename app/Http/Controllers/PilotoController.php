@@ -9,6 +9,7 @@ use App\Models\Piloto;
 use App\Models\Probador;
 use App\Models\Reserva;
 use App\Models\Titular;
+use Illuminate\Http\Request;
 
 class PilotoController extends Controller
 {
@@ -17,7 +18,8 @@ class PilotoController extends Controller
      */
     public function index()
     {
-        $pilotos = Piloto::all();
+        $pilotos = Piloto::with('trofeos')->get();
+
         return view('pilotos.index', ['pilotos' => $pilotos]);
     }
 
@@ -71,6 +73,7 @@ class PilotoController extends Controller
             $licencia = new Licencia();
             $licencia->codigo = "S3";
             $licencia->tipo = $request->status;
+            $licencia->save();
             $piloto->licencia_id = $licencia->id;
 
             $probador = new Probador();
@@ -116,6 +119,56 @@ class PilotoController extends Controller
     public function destroy(Piloto $piloto)
     {
         $piloto->delete();
+
+        return redirect()->route('pilotos.index');
+    }
+
+    public function cambiar(Request $request, Piloto $piloto)
+    {
+        if ($request->status === 'titular'){
+
+            $licencia = new Licencia();
+            $licencia->codigo = "S1";
+            $licencia->tipo = $request->status;
+            $licencia->save();
+            $piloto->licencia_id = $licencia->id;
+
+            $titular = new Titular();
+            $titular->save();
+            $piloto->asignable()->dissociate();
+            $piloto->asignable()->associate($titular);
+
+        } elseif ($request->status === 'reserva') {
+
+            $licencia = new Licencia();
+            $licencia->codigo = "S2";
+            $licencia->tipo = $request->status;
+            $licencia->save();
+            $piloto->licencia_id = $licencia->id;
+
+            $reserva = new Reserva();
+            $reserva->save();
+
+            $piloto->asignable()->dissociate();
+            $piloto->asignable()->associate($reserva);
+
+        } else {
+
+            $licencia = new Licencia();
+            $licencia->codigo = "S3";
+            $licencia->tipo = $request->status;
+            $licencia->save();
+            $piloto->licencia_id = $licencia->id;
+
+            $probador = new Probador();
+            $probador->area = 'Default';
+
+            $probador->save();
+            $piloto->asignable()->dissociate();
+            $piloto->asignable()->associate($probador);
+        }
+
+            $piloto->save();
 
         return redirect()->route('pilotos.index');
     }
